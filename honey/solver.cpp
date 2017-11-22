@@ -64,18 +64,18 @@ vp pos;
 int n;
 ll full;
 vl to;
-int m;
-vl sp, nb;
+vvi _to;
 
 void init() {
   h = w = sz(cell_num);
   board = vvi(h,vi(w,-1));
   rep(i,h) {
     rep(j,cell_num[i]) {
-      board[i][cell_begin[i]+j] = n++;
       pos.pb(P(i,cell_begin[i]+j));
     }
   }
+  n = sz(pos);
+  rep(i,n) board[pos[i].fi][pos[i].se] = i;
   to = vl(n);
   rep(i,n) {
     rep(v,7) {
@@ -87,13 +87,12 @@ void init() {
   full = (1ll<<n)-1;
 }
 
-void print(ll s) {
-  ll nb = 0;
-  rep(i,n) if (s>>i&1) nb |= to[i];
+void print(ll s, ll b=0) {
+  rep(i,n) if (s>>i&1) b |= to[i];
   vs t(h-2,string((w-2)*2-1,' '));
   rep(i,n) {
     char c = '.';
-    if (nb>>i&1) c = 'x';
+    if (b>>i&1) c = 'x';
     if (s>>i&1) c = 'o';
     t[pos[i].fi-1][pos[i].se*2-2+(5-pos[i].fi)] = c;
   }
@@ -101,46 +100,48 @@ void print(ll s) {
   newline;
 }
 
-
-namespace Shapes {
-  void dfs(ll s, ll b, ll used) {
-    if (pcnt(s) == S) {
-      sp.pb(s);
-      nb.pb(b);
-      return;
+ll ans;
+#define PRUNE if (n-pcnt(b)+pcnt(s) < S*N) return;
+void dfs(ll s, ll ns, ll b) {
+  if (pcnt(s) == S*N) {
+    ++ans;
+    // if (ans%10000 == 1) cerr<<ans<<endl, print(s, full^s);
+    print(s, full^s);
+    return;
+  }
+  PRUNE;
+  if (pcnt(ns) == S) {
+    while (ns) {
+      ll x = ns&-ns;
+      ns ^= x;
+      b |= to[pcnt(x-1)];
     }
-    if (!s) {
-      rep(i,n) {
-        used |= 1ll<<i;
-        dfs(s|1ll<<i, b|to[i], used);
-      }
-      return;
-    }
-    ll tmp = b^s;
+  }
+  PRUNE;
+  if (ns) {
+    ll tmp = ns;
+    ll nb = 0;
     while (tmp) {
       ll x = tmp&-tmp;
       tmp ^= x;
-      if (used&x) continue;
-      used |= x;
-      dfs(s|x, b|to[pcnt(x-1)], used);
+      nb |= to[pcnt(x-1)];
     }
-  }
-  void init() {
-    dfs(0,0,0);
-  }
-}
-
-ll ans;
-void dfs(int si, ll s, ll b) {
-  if (pcnt(s) == S*N) {
-    ++ans;
-    print(s);
-    return;
-  }
-  if (n-pcnt(b)+pcnt(s) < S*N) return;
-  for (; si < m; ++si) {
-    if (sp[si]&b) continue;
-    dfs(si+1, s|sp[si], b|nb[si]);
+    nb &= ~b;
+    while (nb) {
+      ll x = nb&-nb;
+      nb ^= x;
+      b |= x;
+      dfs(s|x, ns|x, b);
+    }
+  } else {
+    ll tmp = full^b;
+    while (tmp) {
+      ll x = tmp&-tmp;
+      tmp ^= x;
+      b |= x;
+      dfs(s|x, x, b);
+      PRUNE;
+    }
   }
 }
 
@@ -159,8 +160,6 @@ ll input() {
 
 int main() {
   init();
-  Shapes::init();
-  m = sz(sp);
   ll b = input();
   dfs(0,0,b);
   cout<<ans<<endl;
