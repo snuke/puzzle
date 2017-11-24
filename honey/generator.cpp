@@ -99,12 +99,11 @@ void print(ll s, ll b=0) {
   newline;
 }
 
-ll ans;
+int ans;
 #define PRUNE if (n-pcnt(b)+pcnt(s) < S*N) return;
 void dfs(ll s, ll ns, ll b) {
   if (pcnt(s) == S*N) {
     ++ans;
-    print(s, full^s);
     return;
   }
   PRUNE;
@@ -143,24 +142,61 @@ void dfs(ll s, ll ns, ll b) {
   }
 }
 
-ll input() {
-  vl ci(256,-1);
-  ci['.'] = 0; ci['x'] = 1;
-  ll res = 0;
-  rep(i,n) {
-    char c;
-    scanf(" %c",&c);
-    res |= ci[c]<<i;
-  }
-  return res;
+// ll input() {
+//   vl ci(256,-1);
+//   ci['.'] = 0; ci['x'] = 1;
+//   ll res = 0;
+//   rep(i,n) {
+//     char c;
+//     scanf(" %c",&c);
+//     res |= ci[c]<<i;
+//   }
+//   return res;
+// }
+
+ll getB(vi& a) {
+  ll b = 0;
+  for (int i : a) b |= 1ll<<i;
+  return b;
+}
+int f(vi& a) {
+  ans = 0;
+  dfs(0,0,getB(a));
+  return ans?ans:INF;
 }
 
+void gen() {
+  int m;
+  scanf("%d",&m);
+  vi a, cd;
+  rep(i,n) cd.pb(i);
+  auto get = [&]() {
+    swap(cd[rnd(sz(cd))],cd.back());
+    int res = cd.back(); cd.pop_back();
+    return res;
+  };
+  while (sz(a) < m) a.pb(get());
+  int as = f(a);
+  while (as > 1) {
+    swap(a[rnd(m)],a.back());
+    int rm = a.back(); a.pop_back();
+    a.pb(get());
+    int now = f(a);
+    if (now <= as) {
+      if (now < as) cerr<<now<<endl;
+      as = now;
+      cd.pb(rm);
+    } else {
+      cd.pb(a.back()); a.pop_back();
+      a.pb(rm);
+    }
+  }
+  print(0, getB(a));
+}
 
 int main() {
   init();
-  ll b = input();
-  dfs(0,0,b);
-  cout<<ans<<endl;
+  gen();
   return 0;
 }
 
