@@ -1,4 +1,12 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <cstdio>
+#include <string>
+#include <algorithm>
+#include <set>
+#include <random>
+#include <string>
+#include <sstream>
 #define fi first
 #define se second
 #define rep(i,n) for(int i = 0; i < (n); ++i)
@@ -54,8 +62,9 @@ inline int rnd(int l, int r) { return _mt()%(r-l+1)+l;}
 
 const int di[] = {-1,-1,0,1,1,0,0}, dj[] = {0,-1,-1,0,1,1,0}; // <\^>\v.
 
-const vi cell_num = {0,5,6,7,8,9,8,7,6,5,0};
-const vi cell_begin = {0,1,1,1,1,1,2,3,4,5,0};
+const int SZ = 11;
+const int cell_num[] = {0,5,6,7,8,9,8,7,6,5,0};
+const int cell_begin[] = {0,1,1,1,1,1,2,3,4,5,0};
 const int S = 6, N = 6;
 
 int h, w;
@@ -66,7 +75,7 @@ ll full;
 vl to;
 
 void init() {
-  h = w = sz(cell_num);
+  h = w = SZ;
   board = vvi(h,vi(w,-1));
   rep(i,h) {
     rep(j,cell_num[i]) {
@@ -95,7 +104,7 @@ void print(ll s, ll b=0) {
     if (s>>i&1) c = 'o';
     t[pos[i].fi-1][pos[i].se*2-2+(5-pos[i].fi)] = c;
   }
-  for (string ns : t) cout<<ns<<endl;
+  rep(i,sz(t)) cout<<t[i]<<endl;
   newline;
 }
 
